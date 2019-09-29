@@ -9,6 +9,7 @@ import {
 import md5 from 'js-md5';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import LinearGradient from 'react-native-linear-gradient';
+import PropTypes from 'prop-types';
 import auth from '../../config/auth';
 import api from '../../services/api';
 
@@ -30,48 +31,41 @@ const styles = StyleSheet.create({
 });
 
 export default function Main({ navigation }) {
+  Main.propTypes = {
+    navigation: PropTypes.shape({
+      navigate: PropTypes.func,
+    }).isRequired,
+  };
+
   const timeStamp = new Date().getTime();
   const md5Hash = md5.create();
   md5Hash.update(timeStamp + auth.API_KEY_PRIVATE + auth.API_KEY_PUBLIC);
 
   const [characters, setCharacters] = useState([]);
-  const [offset, setOffset] = useState(0);
-  const [more, setMore] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
+  const [offset, setOffset] = useState(0);
 
-  async function loadCharacters() {
-    const response = await api.get(
-      `characters?offset=${offset}&ts=${timeStamp}&apikey=${auth.API_KEY_PUBLIC}&hash=${md5Hash}`
-    );
-
-    if (offset >= 20) {
-      setCharacters([...characters, ...response.data.data.results]);
-    } else {
-      setCharacters(response.data.data.results);
-    }
-    const valueOffset = offset + 20;
-    setOffset(valueOffset);
-    setLoading(false);
-    const moreValue =
-      response.headers.link && response.headers.link.includes('next');
-    setMore(moreValue);
-    setRefreshing(false);
-  }
   useEffect(() => {
+    setLoading(true);
+    async function loadCharacters() {
+      await api
+        .get(
+          `characters?offset=${offset}&ts=${timeStamp}&apikey=${auth.API_KEY_PUBLIC}&hash=${md5Hash}`
+        )
+        .then(response => {
+          setCharacters([...characters, ...response.data.data.results]);
+          setLoading(false);
+        })
+        .catch(err => {
+          throw err;
+        });
+    }
     loadCharacters();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [offset]);
 
   function loadMore() {
-    if (more) {
-      setLoading(true);
-      loadCharacters();
-    }
-  }
-  function refreshList() {
-    setRefreshing(true);
-    loadCharacters();
+    setOffset(offset + 20);
   }
 
   function renderFooter() {
@@ -99,11 +93,10 @@ export default function Main({ navigation }) {
         </ContainerInput>
         <FlatList
           data={characters}
+          showsVerticalScrollIndicator={false}
           onEndReached={loadMore}
           onEndReachedThreshold={0.2}
           ListFooterComponent={renderFooter}
-          onRefresh={refreshList}
-          refreshing={refreshing}
           renderItem={({ item }) => (
             <Card>
               <ImageCharacter
