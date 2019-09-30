@@ -5,7 +5,11 @@ import {
   FlatList,
   View,
   ActivityIndicator,
+  TouchableOpacity,
+  Keyboard,
+  Alert,
 } from 'react-native';
+
 import md5 from 'js-md5';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import LinearGradient from 'react-native-linear-gradient';
@@ -17,7 +21,6 @@ import {
   Container,
   ContainerInput,
   Input,
-  SearchButton,
   Card,
   ImageCharacter,
   NameCharacter,
@@ -44,28 +47,35 @@ export default function Main({ navigation }) {
   const [characters, setCharacters] = useState([]);
   const [loading, setLoading] = useState(false);
   const [offset, setOffset] = useState(0);
+  const [characterSearch, setCharacterSearch] = useState('');
+
+  async function loadCharacters() {
+    setLoading(true);
+    await api
+      .get(
+        `characters?offset=${offset}&ts=${timeStamp}&apikey=${auth.API_KEY_PUBLIC}&hash=${md5Hash}`
+      )
+      .then(response => {
+        setCharacters([...characters, ...response.data.data.results]);
+        setLoading(false);
+      })
+      .catch(err => {
+        throw err;
+      });
+  }
 
   useEffect(() => {
-    setLoading(true);
-    async function loadCharacters() {
-      await api
-        .get(
-          `characters?offset=${offset}&ts=${timeStamp}&apikey=${auth.API_KEY_PUBLIC}&hash=${md5Hash}`
-        )
-        .then(response => {
-          setCharacters([...characters, ...response.data.data.results]);
-          setLoading(false);
-        })
-        .catch(err => {
-          throw err;
-        });
+    if (characterSearch === '') {
+      loadCharacters();
     }
-    loadCharacters();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [offset]);
+  }, []);
 
   function loadMore() {
-    setOffset(offset + 20);
+    if (characterSearch === '') {
+      setOffset(offset + 20);
+      loadCharacters();
+    }
   }
 
   function renderFooter() {
@@ -75,6 +85,34 @@ export default function Main({ navigation }) {
         <ActivityIndicator />
       </View>
     );
+  }
+  async function searchCharacter() {
+    characters.pop();
+    setLoading(true);
+    Keyboard.dismiss();
+    try {
+      const response = await api.get(
+        `characters?name=${characterSearch}&ts=${timeStamp}&apikey=${auth.API_KEY_PUBLIC}&hash=${md5Hash}`
+      );
+
+      const characterValue = response.data.data.results;
+
+      if (characterValue.length) {
+        setCharacters(characterValue);
+        setLoading(false);
+      } else {
+        Alert.alert('Atenção!', 'Personagem não encontrado');
+        setCharacterSearch('');
+        setOffset(0);
+        loadCharacters();
+      }
+    } catch (err) {
+      Alert.alert('Falha na Busca', 'Por favor verifique os dados informados');
+    }
+  }
+
+  function handleNavigate(character) {
+    navigation.navigate('Character', { character });
   }
 
   return (
@@ -86,10 +124,14 @@ export default function Main({ navigation }) {
     >
       <Container>
         <ContainerInput>
-          <Input placeholder="Ache o seu personagem…" />
-          <SearchButton>
+          <Input
+            placeholder="Busque o seu personagem…"
+            value={characterSearch}
+            onChangeText={setCharacterSearch}
+          />
+          <TouchableOpacity onPress={searchCharacter}>
             <Icon name="search" size={30} color="#EC1D24" />
-          </SearchButton>
+          </TouchableOpacity>
         </ContainerInput>
         <FlatList
           data={characters}
@@ -98,18 +140,20 @@ export default function Main({ navigation }) {
           onEndReachedThreshold={0.2}
           ListFooterComponent={renderFooter}
           renderItem={({ item }) => (
-            <Card>
-              <ImageCharacter
-                source={{
-                  uri: `${item.thumbnail.path}.${item.thumbnail.extension}`,
-                }}
-              />
-              <NameCharacter>
-                <Text style={{ fontWeight: 'bold', fontSize: 14 }}>
-                  {item.name}
-                </Text>
-              </NameCharacter>
-            </Card>
+            <TouchableOpacity onPress={() => handleNavigate(item)}>
+              <Card>
+                <ImageCharacter
+                  source={{
+                    uri: `${item.thumbnail.path}.${item.thumbnail.extension}`,
+                  }}
+                />
+                <NameCharacter>
+                  <Text style={{ fontWeight: 'bold', fontSize: 14 }}>
+                    {item.name}
+                  </Text>
+                </NameCharacter>
+              </Card>
+            </TouchableOpacity>
           )}
           keyExtractor={(item, index) => String(index)}
         />

@@ -1,7 +1,7 @@
 import React from 'react';
 import { createAppContainer } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
-import { Image, View } from 'react-native';
+import { Image } from 'react-native';
 
 import Main from './pages/Main';
 import Character from './pages/Character';
@@ -16,22 +16,18 @@ const Routes = createAppContainer(
     },
     {
       headerBackTitleVisible: false,
+      headerLayoutPreset: 'center',
       defaultNavigationOptions: {
         headerTitle: (
-          <View
-            style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
-          >
-            <Image
-              resizeMode="contain"
-              style={{ width: 140, height: 50 }}
-              source={logo}
-            />
-          </View>
+          <Image
+            resizeMode="contain"
+            style={{ width: 140, height: 50 }}
+            source={logo}
+          />
         ),
         headerStyle: {
           height: 80,
           backgroundColor: '#000',
-          // elevation: 0,
         },
         headerTintColor: '#FFF',
       },

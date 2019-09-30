@@ -42,6 +42,7 @@ export const SearchButton = styled(RectButton)`
 export const Card = styled.View`
   align-items: center;
   height: 200px;
+  /* background: #fff; */
   border-radius: 13px;
   margin-bottom: 15px;
 `;
@@ -53,9 +54,9 @@ export const ImageCharacter = styled.Image`
 `;
 
 export const NameCharacter = styled.View`
+  background: #fff;
   position: absolute;
   top: 160px;
-  background: #fff;
   padding: 5px 15px 5px 15px;
   border-radius: 4px;
   border: 1px solid #333;
