@@ -10,7 +10,6 @@ export const ContainerInput = styled.View`
   flex-direction: row;
   align-items: center;
   background-color: #22262a;
-  /* margin-top: 5px; */
   margin-bottom: 30px;
   border-radius: 13px;
   height: 40px;
