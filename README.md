@@ -1,7 +1,7 @@
 # App_Marvel
  Aplicação React Native que consome dados da  <a href="https://developer.marvel.com/" target="_blank">API da Marvel</a>,   lista os personagens, permite a busca de um personagem especifico e ao clicar sobre o personagem desejado detalha as informações sobre o mesmo.
     
-    ![Git Repo React Native Demo](git-repo.gif)   
+    ![Git App Marvel Demo](AppMarvel.gif)   
   
 
 # Tecnologias Utilizadas :
