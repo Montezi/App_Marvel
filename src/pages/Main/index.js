@@ -65,9 +65,15 @@ export default function Main({ navigation }) {
   }
 
   useEffect(() => {
+    const abortController = new AbortController();
+
     if (characterSearch === '') {
       loadCharacters();
     }
+
+    return function cleanup() {
+      abortController.abort();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -111,8 +117,8 @@ export default function Main({ navigation }) {
     }
   }
 
-  function handleNavigate(character) {
-    navigation.navigate('Character', { character });
+  function handleNavigate(characterId) {
+    navigation.navigate('Character', { characterId });
   }
 
   return (
@@ -137,10 +143,10 @@ export default function Main({ navigation }) {
           data={characters}
           showsVerticalScrollIndicator={false}
           onEndReached={loadMore}
-          onEndReachedThreshold={0.2}
+          onEndReachedThreshold={0.3}
           ListFooterComponent={renderFooter}
           renderItem={({ item }) => (
-            <TouchableOpacity onPress={() => handleNavigate(item)}>
+            <TouchableOpacity onPress={() => handleNavigate(item.id)}>
               <Card>
                 <ImageCharacter
                   source={{

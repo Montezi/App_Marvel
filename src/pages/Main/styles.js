@@ -33,16 +33,13 @@ export const Input = styled.TextInput.attrs({
 export const SearchButton = styled(RectButton)`
   justify-content: center;
   align-items: center;
-  height:40px;
+  height: 40px;
   border-radius: 13px;
   padding: 0 5px;
-  /* opacity: ${props => (props.loading ? 0.7 : 1)}; */
 `;
 
 export const Card = styled.View`
-  align-items: center;
   height: 200px;
-  /* background: #fff; */
   border-radius: 13px;
   margin-bottom: 15px;
 `;
@@ -58,6 +55,7 @@ export const NameCharacter = styled.View`
   position: absolute;
   top: 160px;
   padding: 5px 15px 5px 15px;
+  margin-left: 20px;
   border-radius: 4px;
   border: 1px solid #333;
 `;
