@@ -18,7 +18,7 @@
 * <a href="https://github.com/react-native-community/react-native-linear-gradient" target="_blank">React Linear Gradient</a>
 
 # Instalação
-Para funcionamento da aplicação é necessário utilizar a api <a href="https://github.com/Montezi/Backend-Programming-challenge" target="_blank"> Backend-Programming-Challenge </a>
+
 
 **- Se estiver utilizando Yarn**
 ```
