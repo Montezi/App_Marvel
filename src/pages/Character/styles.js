@@ -32,7 +32,6 @@ export const NameCharacter = styled.Text`
 `;
 
 export const Description = styled.View`
-  /* align-items: center; */
   margin-top: 10px;
 `;
 export const Title = styled.Text`
@@ -60,7 +59,6 @@ export const ListItem = styled.View`
   width: 150px;
   height: 260px;
   padding-bottom: 5px;
-  /* margin: 4px; */
 `;
 export const ImageComic = styled.Image`
   height: 210px;
