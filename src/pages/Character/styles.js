@@ -5,6 +5,7 @@ import styled from 'styled-components/native';
 export const Container = styled.ScrollView`
   flex: 1;
   padding: 20px 20px 0px 20px;
+  margin-bottom: 10px;
 `;
 
 export const CharacterContainer = styled.View`
@@ -47,8 +48,9 @@ export const Content = styled.Text`
   text-align: justify;
 `;
 export const List = styled.View`
-  margin-top: 10px;
+  margin-top: 5px;
   flex-direction: column;
+  margin-bottom: 5px;
 `;
 
 export const ListItem = styled.View`

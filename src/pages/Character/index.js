@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from 'react';
 
-import { FlatList, ActivityIndicator, View, StyleSheet } from 'react-native';
+import {
+  FlatList,
+  ActivityIndicator,
+  View,
+  StyleSheet,
+  Button,
+} from 'react-native';
 import PropTypes from 'prop-types';
 import md5 from 'js-md5';
 import LinearGradient from 'react-native-linear-gradient';
@@ -24,8 +30,9 @@ import {
 
 const styles = StyleSheet.create({
   loading: {
+    flex: 1,
     alignItems: 'center',
-    // alignSelf: 'center',
+    justifyContent: 'center',
     marginVertical: 20,
   },
 });
@@ -44,14 +51,21 @@ export default function Character({ navigation }) {
 
   const [character, setCharacter] = useState([]);
   const [comics, setComics] = useState([]);
+  const [totalComics, setTotalComics] = useState(0);
   const [offset, setOffset] = useState(0);
   const [loading, setLoading] = useState(false);
   const [series, setSeries] = useState([]);
+  const [totalSeries, setTotalSeries] = useState(0);
   const [loadingSeries, setLoadingSeries] = useState(false);
   const [offsetSeries, setOffsetSeries] = useState(0);
   const [stories, setStories] = useState([]);
+  const [totalStories, setTotalStories] = useState(0);
   const [loadingStories, setLoadingStories] = useState(false);
   const [offsetStories, setOffsetStories] = useState(0);
+  const [events, setEvents] = useState([]);
+  const [totalEvents, setTotalEvents] = useState(0);
+  const [loadingEvents, setLoadingEvents] = useState(false);
+  const [offsetEvents, setOffsetEvents] = useState(0);
 
   const characterId = navigation.getParam('characterId');
 
@@ -72,124 +86,106 @@ export default function Character({ navigation }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  async function loadComics() {
+  useEffect(() => {
     setLoading(true);
-    await api
-      .get(
-        `characters/${characterId}/comics?limit=5&offset=${offset}&ts=${timeStamp}&apikey=${auth.API_KEY_PUBLIC}&hash=${md5Hash}`
-      )
-      .then(response => {
-        setComics([...comics, ...response.data.data.results]);
-        setLoading(false);
-      })
-      .catch(err => {
-        throw err;
-      });
-  }
-
-  async function loadSeries() {
-    setLoadingSeries(true);
-    await api
-      .get(
-        `characters/${characterId}/series?limit=5&offset=${offsetSeries}&ts=${timeStamp}&apikey=${auth.API_KEY_PUBLIC}&hash=${md5Hash}`
-      )
-      .then(response => {
-        setSeries([...series, ...response.data.data.results]);
-        setLoadingSeries(false);
-      })
-      .catch(err => {
-        throw err;
-      });
-  }
-
-  async function loadStories() {
-    setLoadingStories(true);
-    await api
-      .get(
-        `characters/${characterId}/stories?limit=5&offset=${offsetStories}&ts=${timeStamp}&apikey=${auth.API_KEY_PUBLIC}&hash=${md5Hash}`
-      )
-      .then(response => {
-        setStories([...stories, ...response.data.data.results]);
-        setLoadingStories(false);
-      })
-      .catch(err => {
-        throw err;
-      });
-  }
-
-  useEffect(() => {
-    const abortController = new AbortController();
-
+    async function loadComics() {
+      await api
+        .get(
+          `characters/${characterId}/comics?limit=5&offset=${offset}&ts=${timeStamp}&apikey=${auth.API_KEY_PUBLIC}&hash=${md5Hash}`
+        )
+        .then(response => {
+          setComics([...comics, ...response.data.data.results]);
+          setTotalComics(response.data.data.total);
+          setLoading(false);
+        })
+        .catch(err => {
+          throw err;
+        });
+    }
     loadComics();
-
-    return function cleanup() {
-      abortController.abort();
-    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [offset]);
 
   useEffect(() => {
-    const abortController = new AbortController();
+    setLoadingSeries(true);
 
+    async function loadSeries() {
+      await api
+        .get(
+          `characters/${characterId}/series?limit=5&offset=${offsetSeries}&ts=${timeStamp}&apikey=${auth.API_KEY_PUBLIC}&hash=${md5Hash}`
+        )
+        .then(response => {
+          setSeries([...series, ...response.data.data.results]);
+          setTotalSeries(response.data.data.total);
+          setLoadingSeries(false);
+        })
+        .catch(err => {
+          throw err;
+        });
+    }
     loadSeries();
 
-    return function cleanup() {
-      abortController.abort();
-    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [offsetSeries]);
 
   useEffect(() => {
-    const abortController = new AbortController();
+    setLoadingStories(true);
+    async function loadStories() {
+      await api
+        .get(
+          `characters/${characterId}/stories?limit=5&offset=${offsetStories}&ts=${timeStamp}&apikey=${auth.API_KEY_PUBLIC}&hash=${md5Hash}`
+        )
+        .then(response => {
+          setStories([...stories, ...response.data.data.results]);
+          setTotalStories(response.data.data.total);
+          setLoadingStories(false);
+        })
+        .catch(err => {
+          throw err;
+        });
+    }
 
     loadStories();
 
-    return function cleanup() {
-      abortController.abort();
-    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [offsetStories]);
+
+  useEffect(() => {
+    setLoadingEvents(true);
+    async function loadEvents() {
+      await api
+        .get(
+          `characters/${characterId}/events?limit=5&offset=${offsetEvents}&ts=${timeStamp}&apikey=${auth.API_KEY_PUBLIC}&hash=${md5Hash}`
+        )
+        .then(response => {
+          setEvents([...events, ...response.data.data.results]);
+          setTotalEvents(response.data.data.total);
+          setLoadingEvents(false);
+        })
+        .catch(err => {
+          throw err;
+        });
+    }
+
+    loadEvents();
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [offsetEvents]);
 
   function loadMore() {
     setOffset(offset + 5);
-    loadComics();
-  }
-
-  function renderFooter() {
-    if (!loading) return null;
-    return (
-      <View style={styles.loading}>
-        <ActivityIndicator />
-      </View>
-    );
   }
 
   function loadMoreSeries() {
     setOffsetSeries(offsetSeries + 5);
-    loadSeries();
-  }
-
-  function renderFooterSeries() {
-    if (!loadingSeries) return null;
-    return (
-      <View style={styles.loading}>
-        <ActivityIndicator />
-      </View>
-    );
   }
 
   function loadMoreStories() {
     setOffsetStories(offsetStories + 5);
-    loadStories();
   }
 
-  function renderFooterStories() {
-    if (!loadingStories) return null;
-    return (
-      <View style={styles.loading}>
-        <ActivityIndicator />
-      </View>
-    );
+  function loadMoreEvents() {
+    setOffsetEvents(offsetEvents + 5);
   }
 
   return (
@@ -224,9 +220,6 @@ export default function Character({ navigation }) {
             horizontal
             pagingEnabled
             data={comics}
-            onEndReached={loadMore}
-            onEndReachedThreshold={0.2}
-            ListFooterComponent={renderFooter}
             renderItem={({ item }) => (
               <ListItem>
                 <ImageComic
@@ -247,6 +240,30 @@ export default function Character({ navigation }) {
                 />
               );
             }}
+            ListFooterComponent={
+              loading ? (
+                <View style={styles.loading}>
+                  <ActivityIndicator />
+                </View>
+              ) : (
+                <View
+                  style={{
+                    flex: 1,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: 200,
+                  }}
+                >
+                  {totalComics > offset && (
+                    <Button
+                      title="Load More"
+                      onPress={loadMore}
+                      color="#22262a"
+                    />
+                  )}
+                </View>
+              )
+            }
             keyExtractor={(item, index) => String(index)}
           />
         </List>
@@ -256,9 +273,6 @@ export default function Character({ navigation }) {
             horizontal
             pagingEnabled
             data={series}
-            onEndReached={loadMoreSeries}
-            onEndReachedThreshold={0.2}
-            ListFooterComponent={renderFooterSeries}
             renderItem={({ item }) => (
               <ListItem>
                 <ImageComic
@@ -279,6 +293,30 @@ export default function Character({ navigation }) {
                 />
               );
             }}
+            ListFooterComponent={
+              loadingSeries ? (
+                <View style={styles.loading}>
+                  <ActivityIndicator />
+                </View>
+              ) : (
+                <View
+                  style={{
+                    flex: 1,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: 200,
+                  }}
+                >
+                  {totalSeries >= offsetSeries && (
+                    <Button
+                      title="Load More"
+                      onPress={loadMoreSeries}
+                      color="#22262a"
+                    />
+                  )}
+                </View>
+              )
+            }
             keyExtractor={(item, index) => String(index)}
           />
         </List>
@@ -288,9 +326,6 @@ export default function Character({ navigation }) {
             horizontal
             pagingEnabled
             data={stories}
-            onEndReached={loadMoreStories}
-            onEndReachedThreshold={0.2}
-            ListFooterComponent={renderFooterStories}
             renderItem={({ item }) => (
               <ListItem>
                 {item.thumbnail !== null ? (
@@ -320,9 +355,88 @@ export default function Character({ navigation }) {
                 />
               );
             }}
+            ListFooterComponent={
+              loadingStories ? (
+                <View style={styles.loading}>
+                  <ActivityIndicator />
+                </View>
+              ) : (
+                <View
+                  style={{
+                    flex: 1,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: 200,
+                  }}
+                >
+                  {totalStories >= offsetStories && (
+                    <Button
+                      title="Load More"
+                      onPress={loadMoreStories}
+                      color="#22262a"
+                    />
+                  )}
+                </View>
+              )
+            }
             keyExtractor={(item, index) => String(index)}
           />
         </List>
+        {events.length > 0 && (
+          <List>
+            <Title>EVENTOS</Title>
+            <FlatList
+              horizontal
+              pagingEnabled
+              data={events}
+              renderItem={({ item }) => (
+                <ListItem>
+                  <ImageComic
+                    source={{
+                      uri: `${item.thumbnail.path}.${item.thumbnail.extension}`,
+                    }}
+                  />
+                  <TitleComic>{item.title}</TitleComic>
+                </ListItem>
+              )}
+              ItemSeparatorComponent={() => {
+                return (
+                  <View
+                    style={{
+                      height: '100%',
+                      width: 10,
+                    }}
+                  />
+                );
+              }}
+              ListFooterComponent={
+                loadingEvents ? (
+                  <View style={styles.loading}>
+                    <ActivityIndicator />
+                  </View>
+                ) : (
+                  <View
+                    style={{
+                      flex: 1,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      width: 200,
+                    }}
+                  >
+                    {totalEvents >= offsetEvents && (
+                      <Button
+                        title="Load More"
+                        onPress={loadMoreEvents}
+                        color="#22262a"
+                      />
+                    )}
+                  </View>
+                )
+              }
+              keyExtractor={(item, index) => String(index)}
+            />
+          </List>
+        )}
       </Container>
     </LinearGradient>
   );

@@ -117,7 +117,7 @@ export default function Main({ navigation }) {
     }
   }
 
-  function handleNavigate(characterId) {
+  async function handleNavigate(characterId) {
     navigation.navigate('Character', { characterId });
   }
 
